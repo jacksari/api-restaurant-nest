@@ -10,14 +10,14 @@ export class RestaurantsService {
         private restaurantModel: Model<Restaurant>
     ){}
 
-    async findAll(search: string): Promise<Restaurant[]> {
+    async findAll(search: string, page: number, limit: number): Promise<Restaurant[]> {
         const key = {
             name: {
                 $regex: search,
                 $options: 'i'
             }
         }
-        const restaurants = await this.restaurantModel.find({...key});
+        const restaurants = await this.restaurantModel.find({...key}).limit(limit).skip(limit * ( page - 1));
         return restaurants;
     }
 

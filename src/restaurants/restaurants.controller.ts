@@ -15,8 +15,10 @@ export class RestaurantsController {
         @Query() query
     ): Promise<Restaurant[]> {
         const search = query.search ? query.search : '';
+        const page = query.page ? query.page : 1;
+        const limit = query.limit ? query.limit : 2;
         
-        return this.restaurantService.findAll(search);
+        return this.restaurantService.findAll(search, page, limit);
     }
 
     @Get(':id')
