@@ -1,8 +1,9 @@
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { Restaurant } from './schemas/restaurant.schema';
+import { isValidObjectId } from 'mongoose';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -26,6 +27,11 @@ export class RestaurantsController {
         @Param('id') 
         id: string
     ): Promise<Restaurant> {
+        const isValidId = isValidObjectId(id);
+        if(!isValidId){
+            throw new BadRequestException('El id no es válido')
+        }
+        
         const resp = await this.restaurantService.findById(id);
         
         return resp;
