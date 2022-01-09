@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import APIFeatures from 'src/utils/apiFeatures.utils';
 import { Restaurant } from './schemas/restaurant.schema';
 
 @Injectable()
@@ -22,7 +23,10 @@ export class RestaurantsService {
     }
 
     async create(restaurant: Restaurant): Promise<Restaurant> {
-        return await this.restaurantModel.create(restaurant);
+        const location = await APIFeatures.getRestaurantLocation(restaurant.address);
+        const data = Object.assign(restaurant, { location });    
+        
+        return await this.restaurantModel.create(data);
     }
 
     async findById(id: string): Promise<Restaurant> {

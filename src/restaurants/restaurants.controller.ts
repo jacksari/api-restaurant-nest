@@ -1,9 +1,13 @@
+import { editFileName } from './../utils/editFileName';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { Restaurant } from './schemas/restaurant.schema';
 import { isValidObjectId } from 'mongoose';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import UploadCloudinary from 'src/utils/uploadCloudinary';
+import { diskStorage } from 'multer';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -53,6 +57,24 @@ export class RestaurantsController {
         await this.restaurantService.findById(id);
         
         return this.restaurantService.updateById(id, restaurant);
+    }
+
+    @Put('upload/:id')
+    @UseInterceptors(
+        FilesInterceptor('images', 4, {
+                storage: diskStorage({
+                destination: 'upload',
+                filename: editFileName,
+            }),
+        }),
+    )
+    async uploadFile(@UploadedFiles() files: Array<Express.Multer.File>) {
+        //console.log(files);
+        files.forEach(async file => {
+            const url = await UploadCloudinary.uploadImage(file);  
+            console.log(url);
+        });
+        //await UploadCloudinary.uploadImage(file);
     }
 
     @Delete(':id')
