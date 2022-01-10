@@ -68,12 +68,12 @@ export class RestaurantsController {
             }),
         }),
     )
-    async uploadFile(@UploadedFiles() files: Array<Express.Multer.File>) {
+    async uploadFile(
+        @Param('id') id: string,
+        @UploadedFiles() files: Array<Express.Multer.File>
+    ) {
         //console.log(files);
-        files.forEach(async file => {
-            const url = await UploadCloudinary.uploadImage(file);  
-            console.log(url);
-        });
+        return await this.restaurantService.uploadImages(id, files);
         //await UploadCloudinary.uploadImage(file);
     }
 

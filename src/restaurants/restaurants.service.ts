@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import APIFeatures from 'src/utils/apiFeatures.utils';
+import UploadCloudinary from 'src/utils/uploadCloudinary';
 import { Restaurant } from './schemas/restaurant.schema';
 
 @Injectable()
@@ -43,5 +44,21 @@ export class RestaurantsService {
 
     async deleteById(id: string): Promise<Restaurant> {
         return await this.restaurantModel.findByIdAndDelete(id);
+    }
+
+    async uploadImages(id, files) {
+        const images = [];
+        for (const file of files) {
+            const url = await UploadCloudinary.uploadImage(file);  
+            images.push(url);
+        }
+        const restaurant = await this.restaurantModel.findByIdAndUpdate(id, {
+            images: images as Object[]
+        }, {
+            new: true,
+            runValidators: true
+        })
+
+        return restaurant;
     }
 }
