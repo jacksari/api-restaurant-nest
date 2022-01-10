@@ -1,4 +1,6 @@
+import { User } from './../../auth/schemas/user.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 
 @Schema()
 export class Location {
@@ -50,6 +52,9 @@ export class Restaurant {
 
   @Prop({ type: Object, ref: 'Location' })
   location?: Location
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User
 }
 
 

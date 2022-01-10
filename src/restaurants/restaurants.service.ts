@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { User } from 'src/auth/schemas/user.schema';
 import APIFeatures from 'src/utils/apiFeatures.utils';
 import UploadCloudinary from 'src/utils/uploadCloudinary';
 import { Restaurant } from './schemas/restaurant.schema';
@@ -19,19 +20,22 @@ export class RestaurantsService {
                 $options: 'i'
             }
         }
-        const restaurants = await this.restaurantModel.find({...key}).limit(limit).skip(limit * ( page - 1));
+        const restaurants = await this.restaurantModel.find({...key})
+                                                    .limit(limit)
+                                                    .skip(limit * ( page - 1))
+                                                    .populate('user', 'email name');
         return restaurants;
     }
 
-    async create(restaurant: Restaurant): Promise<Restaurant> {
+    async create(restaurant: Restaurant, user: User): Promise<Restaurant> {
         const location = await APIFeatures.getRestaurantLocation(restaurant.address);
-        const data = Object.assign(restaurant, { location });    
+        const data = Object.assign(restaurant, { user: user._id, location });    
         
         return await this.restaurantModel.create(data);
     }
 
     async findById(id: string): Promise<Restaurant> {
-        const resp = await this.restaurantModel.findById(id);
+        const resp = await this.restaurantModel.findById(id).populate('user', 'email name');
         if(!resp){
             throw new NotFoundException('No existe el restaurante');
         }

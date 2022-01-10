@@ -2,12 +2,15 @@ import { editFileName } from './../utils/editFileName';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Restaurant } from './schemas/restaurant.schema';
 import { isValidObjectId } from 'mongoose';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import UploadCloudinary from 'src/utils/uploadCloudinary';
 import { diskStorage } from 'multer';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -19,6 +22,7 @@ export class RestaurantsController {
     async getAllRestaurants(
         @Query() query
     ): Promise<Restaurant[]> {
+        
         const search = query.search ? query.search : '';
         const page = query.page ? query.page : 1;
         const limit = query.limit ? query.limit : 2;
@@ -42,11 +46,13 @@ export class RestaurantsController {
     }
 
     @Post()
+    @UseGuards(AuthGuard())
     async createRestaurant(
         @Body()
-        restaurant: CreateRestaurantDto
+        restaurant: CreateRestaurantDto,
+        @CurrentUser() user: User
     ): Promise<Restaurant> {
-        return  this.restaurantService.create(restaurant);
+        return  this.restaurantService.create(restaurant, user);
     }
 
     @Put(':id')

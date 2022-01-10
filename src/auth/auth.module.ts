@@ -1,3 +1,4 @@
+import { jwtConstants } from './constants';
 import { UserSchema } from './schemas/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config'
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -16,9 +18,9 @@ import { ConfigService } from '@nestjs/config'
       inject: [ ConfigService ],
       useFactory: (config: ConfigService) => {
         return {
-          secret: 'huhuijijij',
+          secret: jwtConstants.secret,
           signOptions: {
-            expiresIn: '1d'
+            expiresIn: jwtConstants.expiresIn
           }
         }
       }
@@ -30,6 +32,7 @@ import { ConfigService } from '@nestjs/config'
   controllers: [
     AuthController
   ],
-  providers: [AuthService]
+  providers: [AuthService, JwtStrategy],
+  exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

@@ -1,4 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 export enum UserRoles {
     ADMIN = 'ADMIN_ROLE',
@@ -6,7 +7,7 @@ export enum UserRoles {
 }
 
 @Schema()
-export class User {
+export class User extends Document{
     @Prop()
     name: string;
 
